@@ -237,50 +237,21 @@ file_data <- read_excel("honeyraw 2008 - 2012.xlsx")
 
 file_data[, 3:7] <- sapply(file_data[, 3:7], as.numeric)
 
-states <- file_data[, 1]
-states <- as.data.frame(unique(states))
+file_data <- gather(file_data, year, ventas, -state, -Valores)
+file_data <- spread(file_data, Valores, ventas)
 
-for (i in seq_len(nrow(states))) {
-  current_state <- states[i, ]
-  state_rows_subset <- subset(file_data, file_data$state == current_state)
-  state_rows <- as.data.frame(state_rows_subset)
-  state_rows <- t(state_rows[, 2:7])
-  state_rows <- cbind(state_rows, current_state)
-  if (i == 1) {
-    print("First one")
-    # The first one
-    data_transposed <- state_rows
-    colnames(data_transposed) <- data_transposed[1, ]
-    data_transposed <- data_transposed[-1, ]
-    years <- as.data.frame(rownames(data_transposed))
-    colnames(years) <- "year"
-    colnames(data_transposed)[7] <- "State"
-    data_transposed <- cbind(data_transposed, years)
-  } else {
-    cols <- state_rows[1, ]
-    cols[7] <- "State"
-    cols[8] <- "year"
-    state_rows <- state_rows[-1, ]
-    years <- as.data.frame(rownames(state_rows))
-    colnames(years) <- "year"
-    state_rows <- cbind(state_rows, years)
-    colnames(state_rows) <- cols
-    data_transposed <- rbind(data_transposed, state_rows)
-  }
-}
 
-rownames(data_transposed) <- NULL
-
-fill(data_transposed$numcol, .direction = c("down"))
-glimpse(data_transposed)
-data_transposed[, 1:6] <- sapply(data_transposed[, 1:6], as.numeric)
-data_transposed[, 8] <- sapply(data_transposed[, 8], as.numeric)
-
+glimpse(file_data)
 glimpse(all_data)
 
-all_data <- rbind(all_data, data_transposed)
-data <- all_data %>% fill(totalprod, .direction = "down")
+colnames(file_data)
+colnames(all_data)[1] <- "state"
+
+all_data <- rbind(all_data, file_data)
+
+all_data %>% filter(state == "MD")
+data <- all_data %>% fill(numcol:prodvalue, .direction = "down")
+data %>% filter(state == "MD")
+# data$year <- as.factor(all_data$year)
+data$year <- as.numeric(all_data$year)
 save(data, file = "clean.Rdata")
-
-
-
