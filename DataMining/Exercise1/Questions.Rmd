@@ -1,0 +1,79 @@
+---
+title: "Data Wrangling"
+output: html_document
+date: "2024-01-24"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+load("clean.Rdata")
+```
+
+# Ejercicio 1
+
+**Instrucciones:** Descargar de Canvas los datos DataWrangling_ProduccionMiel, aplicar las técnica de Data Wrangling para lograr que quede con la misma estructura de “Muestra limpia.xlsx” y responder las siguientes preguntas:
+
+## Pregunta 1
+_¿La tendencia de producción de miel va en aumento o disminución?_
+
+Para contestar esta pregunta, se debe de t
+
+```{r honey}
+one_million <- 1000000
+
+honey_tendency_state <- data %>%
+  group_by(State, year) %>%
+  arrange(year) %>%
+  summarize(total_produced_millions = sum(totalprod) / one_million)
+
+ggplot(honey_tendency_state, aes(x = year, y = total_produced_millions, color = State)) +
+  geom_line() +
+  expand_limits(y = 0) +
+  ggtitle("Statal Honey Production in Millions of Pounds") +
+  xlab("Year") +
+  ylab("Millions of Pounds of Honey Produced")
+```
+
+
+```{r honey_national}
+
+honey_tendency_national <- data %>%
+  arrange(year) %>%
+  group_by(year) %>%
+  summarize(total_produced_millions = sum(totalprod) / one_million)
+
+ggplot(honey_tendency_national, aes(x = year, y = total_produced_millions)) +
+  geom_line() +
+  expand_limits(y = 0) +
+  ggtitle("National Honey Production in Millions of Pounds") +
+  xlab("Year") +
+  ylab("Millions of Pounds of Honey Produced")
+
+```
+
+
+
+
+
+## R Markdown
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+summary(cars)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r pressure, echo=FALSE}
+plot(pressure)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

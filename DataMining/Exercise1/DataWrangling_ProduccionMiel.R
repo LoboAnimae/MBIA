@@ -215,7 +215,7 @@ new_data <- new_data %>%
   select(State, numcol, yieldpercol, totalprod, stocks, priceperlb, prodvalue, year)
 
 
-all_data <- rbind(honeyraw9802_3, new_data)
+all_data <- rbind(all_data, new_data)
 
 rm(dataset0307)
 rm(new_data)
@@ -240,7 +240,7 @@ file_data[, 3:7] <- sapply(file_data[, 3:7], as.numeric)
 states <- file_data[, 1]
 states <- as.data.frame(unique(states))
 
-for (i in 1:20) {
+for (i in seq_len(nrow(states))) {
   current_state <- states[i, ]
   state_rows_subset <- subset(file_data, file_data$state == current_state)
   state_rows <- as.data.frame(state_rows_subset)
@@ -254,17 +254,14 @@ for (i in 1:20) {
     data_transposed <- data_transposed[-1, ]
     years <- as.data.frame(rownames(data_transposed))
     colnames(years) <- "year"
-    colnames(data_transposed)[7] <- "state"
+    colnames(data_transposed)[7] <- "State"
     data_transposed <- cbind(data_transposed, years)
   } else {
-    print(i)
-    print("Beginning")
     cols <- state_rows[1, ]
-    cols[7] <- "state"
+    cols[7] <- "State"
     cols[8] <- "year"
     state_rows <- state_rows[-1, ]
-    years <- as.data.frame(rownames(data_transposed))
-    print("End")
+    years <- as.data.frame(rownames(state_rows))
     colnames(years) <- "year"
     state_rows <- cbind(state_rows, years)
     colnames(state_rows) <- cols
@@ -274,4 +271,16 @@ for (i in 1:20) {
 
 rownames(data_transposed) <- NULL
 
-fill(data_transposed)
+fill(data_transposed$numcol, .direction = c("down"))
+glimpse(data_transposed)
+data_transposed[, 1:6] <- sapply(data_transposed[, 1:6], as.numeric)
+data_transposed[, 8] <- sapply(data_transposed[, 8], as.numeric)
+
+glimpse(all_data)
+
+all_data <- rbind(all_data, data_transposed)
+data <- all_data %>% fill(totalprod, .direction = "down")
+save(data, file = "clean.Rdata")
+
+
+
