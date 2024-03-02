@@ -3,12 +3,15 @@ library(dplyr)
 library(e1071)
 library(rpart)
 library(randomForest)
+library(weights)
+
 
 setwd("/Users/yagdrassyl/Documents/Code/University/MBIA/DataMining/exam")
 data <- read_excel("Datos_membresia.xlsx")
 
 # Check the data
 glimpse(data)
+data$Acepta_membresia <- ifelse(data$Acepta_membresia == "si", 1, 0)
 
 # Desarrolle un modelo que logre clasificar la respuesta de los clientes
 # ante una invitación para suscribirse a una membresía en un club campestre...
@@ -39,3 +42,6 @@ tree_model <- rpart(Acepta_membresia ~ ., data = train, method = "class")
 
 # Random Forest
 random_forest_model <- randomForest(Acepta_membresia ~ ., data = train, importance = F, type = "class")
+
+# Logistic regression
+logistic_regression_model <- glm(Acepta_membresia ~ ., data = train, family = "binomial")
